@@ -134,6 +134,8 @@ var Client = exports.Client = function(host, port, options) {
             var frame = new FrameParser(data);
             if(frame.opcode == 'READY')
                 callback();
+            else if(frame.opcode == 'READY')
+                callback(new ProtocolError(frame));
         });
     };
 
@@ -142,6 +144,14 @@ var Client = exports.Client = function(host, port, options) {
             client.on('end', callback);
 
         client.end();
+
+        streamIDs = [];
+        for(var i = 0; i < 128; i++)
+            streamIDs.push(i);
+
+        for(var key in replyCallbacks) {
+            delete replyCallbacks[key];
+        }
     };
 
     //send a frame with a new streamID (queuing if necessary) and register a callback
