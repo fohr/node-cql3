@@ -95,7 +95,7 @@ var Client = exports.Client = function(host, port, options) {
     };
 
     this.disconnect = function() {
-
+        client.end();
     };
 
     //send a frame with a new streamID (queuing if necessary) and register a callback

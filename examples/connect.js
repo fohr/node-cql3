@@ -1,10 +1,19 @@
 var Client = require('../index').Client;
 
-var client = new Client('localhost', {});
+var client = new Client('localhost');
 
-client.connect(function() {
-    client.query('USE marlin;', function(err, result) {
+client.connect(function(err) {
+    if(err) {
         console.log(err);
-        console.log(result);
-    });
+        client.disconnect();
+    } else {
+        client.query('USE test;', function(err, result) {
+            if(err)
+                console.log(err);
+            else
+                console.log(result);
+
+            client.disconnect();
+        });
+    }
 });
