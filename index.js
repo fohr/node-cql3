@@ -23,6 +23,8 @@ exports.Client = function(host, port, options) {
             startup();
         });
 
+        client.on('data', handleData);
+
         client.on('end', function() {
             client = null;
         });
@@ -47,4 +49,23 @@ exports.Client = function(host, port, options) {
     this.disconnect = function() {
 
     };
+
+    //send a frame with a new streamID (queuing if necessary) and register a callback
+    function sendStream(frameBuilder, callback) {
+        var stream = streamIDs.pop();
+        replyCallbacks[stream] = callback;
+    }
+
+    function handleData(data) {
+        //...
+        var stream = data.readUInt8(2);
+        
+        var callback = replyCallbacks[stream];
+
+        if(callback) {
+            streamIDs.push(stream);
+            delete replyCallbacks[stream];
+            callback();
+        }
+    }
 };
