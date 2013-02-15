@@ -126,16 +126,28 @@ var Client = exports.Client = function(host, port, options) {
         });
     };
 
-    this.register = function(events) { //array of strings
+    this.register = function(events, callback) { //array of strings
+        var frame = new FrameBuilder('REGISTER');
+        frame.writeStringList(events);
 
+        sendStream(frame, function(data) {
+            var frame = new FrameParser(data);
+            if(frame.opcode == 'READY')
+                callback();
+        });
     };
 
-    this.disconnect = function() {
+    this.disconnect = function(callback) {
         client.end();
+
+        if(callback)
+            client.on('end', callback);
     };
 
     //send a frame with a new streamID (queuing if necessary) and register a callback
     function sendStream(frameBuilder, callback) {
+        if(typeof callback == 'undefined') 
+            callback = function() {};
         //TODO: queue requests if no stream IDs are available
         var stream = streamIDs.pop();
         replyCallbacks[stream] = callback;
@@ -147,8 +159,6 @@ var Client = exports.Client = function(host, port, options) {
         var stream = data.readUInt8(2);
 
         if(stream >= 0) {
-            var frame = new FrameParser(data);
-            
             var callback = replyCallbacks[stream];
 
             if(callback) {
@@ -159,6 +169,18 @@ var Client = exports.Client = function(host, port, options) {
             }
         } else {
             //EVENT
+            var frame = new FrameParser(data);
+            var event = frame.readString();
+
+            if(event == 'TOPOLOGY_CHANGE') {
+                this.emit(event, frame.readString(), frame.readInet());
+            } else if (event == 'STATUS_CHANGE') {
+                this.emit(event, frame.readString(), frame.readInet());
+            } else if (event == 'SCHEMA_CHANGE') {
+                this.emit(event, frame.readString(), frame.readString(), frame.readString());
+            } else {
+                throw new Error('Unknown EVENT type: ' + event);
+            }
         }
     }
 
@@ -178,7 +200,6 @@ var Client = exports.Client = function(host, port, options) {
                 meta: frame.readMetadata()
             };
         case 5: //Schema_change
-            //This may need to be fixed to use outside of V8
             return {
                 change: frame.readString(),
                 keyspace: frame.readString(),
@@ -186,7 +207,7 @@ var Client = exports.Client = function(host, port, options) {
             };
         }
 
-        return null; //TODO: error handling
+        throw new Error('Unkown RESPONSE type: ' + kind);
     }
 
     function parseRows(frame) {
