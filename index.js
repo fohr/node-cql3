@@ -165,7 +165,7 @@ var Client = exports.Client = function(host, port, options) {
         }
 
         return {
-            metadata: meta,
+            meta: meta,
             rows: rows
         };
     }
