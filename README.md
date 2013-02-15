@@ -1,10 +1,10 @@
-node-cq3
-========
+Description
+===========
 
-A driver for Cassandra's CQ3 binary protocol.
+A driver for Cassandra's CQ3 binary protocol. It doesn't provide high-level client functionality, like abstracted queries, multiple node connections, etc. That functionality can be built on top of this module easily.
 
 API
----
+===
 
     var Client = require('cql3').Client;
     
@@ -35,7 +35,7 @@ API
   * __callback__ has the form _(err, result)_ where the format of result depends on the query (see below).
 * prepare( _&lt;string&gt;_ query, _&lt;function&gt;_ callback)
 * execute( _&lt;integer&gt;_ id, [ _&lt;array&gt;_ values], [ _&lt;integer&gt;_ consistency], _&lt;function&gt;_ callback)
-  * __consistency__ can be one of these options:
+   * consistency can be one of these options:
       * 0 - ANY
       * 1 - ONE
       * 2 - TWO
