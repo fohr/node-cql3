@@ -29,7 +29,7 @@ API
     
 #### Client
 
-* (constructor)(_&lt;string&gt;_host, _&lt;integer&gt;_port, _&lt;object&rt;* options)
+* (constructor)(_&lt;string&gt;_host, _&lt;integer&gt;_port, _&lt;object&rt;_ options)
 * connect(_&lt;function&rt;_ callback) 
 * query(_&lt;string&gt;_ query, _&lt;function&gt;_ callback)
 * prepare(_&lt;string&gt;_ query, _&lt;function&gt;_ callback)
