@@ -15,7 +15,7 @@ var Client = exports.Client = function(host, port, options) {
     }
 
     if(options == null)
-        options = {};
+        options = {}; //to avoid null reference exceptions
 
     if(!options.version)
         options.version = '3.0.0';
@@ -64,7 +64,7 @@ var Client = exports.Client = function(host, port, options) {
     this.query = function(query, consistency, callback) {
         if(typeof callback == 'undefined') {
             callback = consistency;
-            consistency = 0; //ANY, is this a good default?
+            consistency = 1; //ONE, is this a good default?
         }
 
         var frame = new FrameBuilder('QUERY');
@@ -86,6 +86,7 @@ var Client = exports.Client = function(host, port, options) {
 
     };
 
+    //id is a buffer from a PREPARE
     this.execute = function(id, values, consistency, callback) {
 
     };
@@ -132,7 +133,10 @@ var Client = exports.Client = function(host, port, options) {
         case 3: //Set_keyspace
             return frame.readString();
         case 4: //Prepared
-            return null;
+            return {
+                id: frame.readShortBytes(),
+                metadata: frame.readMetadata()
+            };
         case 5: //Schema_change
             //This may need to be fixed to use outside of V8
             return {
@@ -154,12 +158,14 @@ var Client = exports.Client = function(host, port, options) {
             var row = {};
             for(var col = 0; col < meta.columns.length; col++ ) {
                 var spec = meta.columns[col];
+                console.log(spec.type);
                 row[spec.column_name] = Types.convert(frame.readBytes(), spec.type);
             }
+            rows.push(row);
         }
 
         return {
-            meta: meta,
+            metadata: meta,
             rows: rows
         };
     }
