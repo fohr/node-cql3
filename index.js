@@ -3,9 +3,10 @@ var net = require('net'),
     util = require('util'),
     FrameParser = require('./lib/frameParser').FrameParser,
     FrameBuilder = require('./lib/frameBuilder').FrameBuilder,
-    Types = require('./lib/types.js').Types;
+    types = require('./lib/types.js');
 
 //Default port: 9042
+
 var Client = exports.Client = function(host, port, options) {
     events.EventEmitter.call(this);
 
@@ -159,7 +160,7 @@ var Client = exports.Client = function(host, port, options) {
             for(var col = 0; col < meta.columns.length; col++ ) {
                 var spec = meta.columns[col];
                 console.log(spec.type);
-                row[spec.column_name] = Types.convert(frame.readBytes(), spec.type);
+                row[spec.column_name] = types.convert(frame.readBytes(), spec.type);
             }
             rows.push(row);
         }
