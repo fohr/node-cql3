@@ -3,5 +3,8 @@ var Client = require('../index').Client;
 var client = new Client('localhost', {});
 
 client.connect(function() {
-    console.log('ready');
+    client.query('USE marlin;', function(err, result) {
+        console.log(err);
+        console.log(result);
+    });
 });
