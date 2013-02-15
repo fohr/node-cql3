@@ -1,7 +1,7 @@
 Description
 ===========
 
-A driver for Cassandra's CQ3 binary protocol. It doesn't provide high-level client functionality, like abstracted queries, multiple node connections, etc. That functionality can be built on top of this module easily.
+A driver for Cassandra's CQ3 binary protocol. It doesn't provide high-level client functionality like abstracted queries, multiple server connections, etc. That functionality can be built on top of this module easily, however.
 
 API
 ===
