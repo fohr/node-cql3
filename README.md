@@ -29,11 +29,11 @@ API
     
 #### Client
 
-* (constructor)(_<string>_host, _<integer>_port, _<object>* options)
-* connect(_<function>_ callback) 
-* query(_<string>_ query, _<function>_ callback)
-* prepare(_<string>_ query, _<function>_ callback)
-* execute(_<integer>_ id, [_<array>_ values], [_<integer>_ consistency], _<function>_ callback)
+* (constructor)(_&lt;string&rt;_host, _&lt;integer&rt;_port, _&lt;object&rt;* options)
+* connect(_&lt;function&rt;_ callback) 
+* query(_&lt;string&rt;_ query, _&lt;function&rt;_ callback)
+* prepare(_&lt;string&rt;_ query, _&lt;function&rt;_ callback)
+* execute(_&lt;integer&rt;_ id, [_&lt;array&rt;_ values], [_&lt;integer&rt;_ consistency], _&lt;function&rt;_ callback)
 * disconnect()
 
 
