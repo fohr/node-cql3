@@ -43,7 +43,7 @@ var Client = exports.Client = function(host, port, options) {
                 if(frame.opcode == 'READY') {
                     callback();
                 } else if (frame.opcode == 'ERROR') {
-                    callback(new ProtocolError(frame.readInt(), frame.readString()));
+                    callback(new ProtocolError(frame));
                 } else if (frame.opcode == 'AUTHENTICATE') {
                     throw new Error("Server needs authentication which isn't implemented yet"); 
                 }
@@ -78,7 +78,7 @@ var Client = exports.Client = function(host, port, options) {
             if(frame.opcode == 'RESULT') {
                 callback(null, parseResult(frame));
             } else if (frame.opcode == 'ERROR') {
-                callback(new ProtocolError(frame.readInt(), frame.readString()));
+                callback(new ProtocolError(frame));
             }
         });
     };
@@ -172,9 +172,9 @@ var Client = exports.Client = function(host, port, options) {
     }
 };
 
-function ProtocolError(code, message) {
-    this.code = code;
-    this.message = message;
+function ProtocolError(frame) {
+    this.code = frame.readInt();
+    this.message = frame.readString();
 }
 ProtocolError.prototype = new Error();
 ProtocolError.prototype.constructor = ProtocolError;
