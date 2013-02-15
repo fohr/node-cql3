@@ -1,3 +1,5 @@
+> Note: This module is still in development and is not completely usable yet. If you are interested in helping, please send me a message.
+
 Description
 ===========
 
