@@ -16,7 +16,7 @@ API
     });
     
     function init() {
-        client.query('USE test', function(err, result) {
+        client.query('USE test;', function(err, result) {
             if(!err) {
                 console.log(result);
             }
@@ -26,6 +26,16 @@ API
     ---------------------
     
     'test'
+    
+#### Client
+
+* (constructor)(*<string>*host, *<integer>*port, *<object>* options)
+* connect(*<function>* callback) 
+* query(*<string>* query, *<function>* callback)
+* prepare(*<string>* query, *<function>* callback)
+* execute(*<integer>* id, [*<array>* values], [*<integer>* consistency], *<function*> callback)
+* disconnect()
+
 
 Todo
 ----
