@@ -138,17 +138,18 @@ var Client = exports.Client = function(host, port, options) {
     };
 
     this.disconnect = function(callback) {
-        client.end();
-
         if(callback)
             client.on('end', callback);
+
+        client.end();
     };
 
     //send a frame with a new streamID (queuing if necessary) and register a callback
     function sendStream(frameBuilder, callback) {
         if(typeof callback == 'undefined') 
             callback = function() {};
-        //TODO: queue requests if no stream IDs are available
+
+        //TODO: queue requests if no stream IDs are available (and if a callback was passed)
         var stream = streamIDs.pop();
         replyCallbacks[stream] = callback;
         frameBuilder.streamID = stream;
