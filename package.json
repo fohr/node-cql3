@@ -1,0 +1,8 @@
+{
+    "name": "cql3",
+    "version": "0.0.1",
+    "description": "CQL3 binary protocol client for Cassandra",
+    "dependencies": {
+
+    }
+}
