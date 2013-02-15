@@ -26,7 +26,7 @@ var Client = exports.Client = function(host, port, options) {
     for(var i = 0; i < 128; i++)
         streamIDs.push(i);
 
-    var replyCallbacks = {}; //TODO: queue requests if no stream IDs are available
+    var replyCallbacks = {}; 
 
     var client; //socket
 
@@ -84,12 +84,46 @@ var Client = exports.Client = function(host, port, options) {
     };
 
     this.prepare = function(query, callback) {
+        var frame = new FrameBuilder('PREPARE');
+        frame.writeLString(query);
 
+        sendStream(frame, function(data) {
+            var frame = new FrameParser(data);
+
+            if(frame.opcode == 'PREPARED') {
+                callback(null, parseResult(frame));
+            } else if (frame.opcode == 'ERROR') {
+                callback(new ProtocolError(frame));
+            }
+        });
     };
 
     //id is a buffer from a PREPARE
     this.execute = function(id, values, consistency, callback) {
+        if(typeof callback == 'undefined') {
+            callback = consistency;
+            consistency = 1; //ONE, is this a good default?
+        }
 
+        var frame = new FrameBuilder('EXECUTE');
+        frame.writeShortBytes(id);
+        frame.writeShort(values.length);
+
+        values.forEach(function(value) {
+            frame.writeBytes(value);
+        });
+
+        frame.writeShort(consistency);
+
+        sendStream(frame, function(data) {
+            var frame = new FrameParser(data);
+
+            if(frame.opcode == 'RESULT') {
+                callback(null, parseResult(frame));
+            } else if (frame.opcode == 'ERROR') {
+                callback(new ProtocolError(frame));
+            }
+        });
     };
 
     this.register = function(events) { //array of strings
@@ -102,6 +136,7 @@ var Client = exports.Client = function(host, port, options) {
 
     //send a frame with a new streamID (queuing if necessary) and register a callback
     function sendStream(frameBuilder, callback) {
+        //TODO: queue requests if no stream IDs are available
         var stream = streamIDs.pop();
         replyCallbacks[stream] = callback;
         frameBuilder.streamID = stream;
@@ -111,15 +146,19 @@ var Client = exports.Client = function(host, port, options) {
     function handleData(data) {
         var stream = data.readUInt8(2);
 
-        var frame = new FrameParser(data);
-        
-        var callback = replyCallbacks[stream];
+        if(stream >= 0) {
+            var frame = new FrameParser(data);
+            
+            var callback = replyCallbacks[stream];
 
-        if(callback) {
-            streamIDs.push(stream);
-            delete replyCallbacks[stream];
+            if(callback) {
+                streamIDs.push(stream);
+                delete replyCallbacks[stream];
 
-            callback(data);
+                callback(data);
+            }
+        } else {
+            //EVENT
         }
     }
 
@@ -136,7 +175,7 @@ var Client = exports.Client = function(host, port, options) {
         case 4: //Prepared
             return {
                 id: frame.readShortBytes(),
-                metadata: frame.readMetadata()
+                meta: frame.readMetadata()
             };
         case 5: //Schema_change
             //This may need to be fixed to use outside of V8
@@ -159,7 +198,6 @@ var Client = exports.Client = function(host, port, options) {
             var row = {};
             for(var col = 0; col < meta.columns.length; col++ ) {
                 var spec = meta.columns[col];
-                console.log(spec.type);
                 row[spec.column_name] = types.convert(frame.readBytes(), spec.type);
             }
             rows.push(row);
