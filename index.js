@@ -6,7 +6,6 @@ var net = require('net'),
     types = require('./lib/types.js');
 
 //Default port: 9042
-
 var Client = exports.Client = function(host, port, options) {
     events.EventEmitter.call(this);
 
@@ -100,6 +99,7 @@ var Client = exports.Client = function(host, port, options) {
         });
     };
 
+    //Values must be an array of Buffers. Todo: functions for converting native JS types to CQL3 format. Infer type where possible
     this.execute = function(id, values, consistency, callback) {
         if(typeof callback == 'undefined') {
             callback = consistency;
