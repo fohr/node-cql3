@@ -69,5 +69,5 @@ __disconnect__() - close the connection with Cassandra
 Todo
 ----
 
-* Compression
+* Snappy compression
 * Tracing
