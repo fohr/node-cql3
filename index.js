@@ -88,17 +88,18 @@ var Client = exports.Client = function(host, port, options) {
         frame.writeLString(query);
 
         sendStream(frame, function(data) {
+
             var frame = new FrameParser(data);
 
-            if(frame.opcode == 'PREPARED') {
-                callback(null, parseResult(frame));
+            if(frame.opcode == 'RESULT') {
+                var result = parseResult(frame);
+                callback(null, result.id, result.meta);
             } else if (frame.opcode == 'ERROR') {
                 callback(new ProtocolError(frame));
             }
         });
     };
 
-    //id is a buffer from a PREPARE
     this.execute = function(id, values, consistency, callback) {
         if(typeof callback == 'undefined') {
             callback = consistency;
@@ -227,10 +228,10 @@ var Client = exports.Client = function(host, port, options) {
 
         var rows = [];
         for(var i = 0; i < rowCount; i++) {
-            var row = {};
+            var row = [];
             for(var col = 0; col < meta.columns.length; col++ ) {
                 var spec = meta.columns[col];
-                row[spec.column_name] = types.convert(frame.readBytes(), spec.type);
+                row[col] = types.convert(frame.readBytes(), spec.type);
             }
             rows.push(row);
         }
